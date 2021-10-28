@@ -1,5 +1,6 @@
 package com.example.fitnesscounter.ui.viewmodels
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fitnesscounter.data.repos.UserRepository
@@ -28,5 +29,9 @@ class UserViewModel
 
 
     fun login(email: String, password: String) = userRepository.login(email, password)
+
+    fun getContacts(activity:Activity) = userRepository.getContact(activity)
+
+    fun getCurrentSms(activity: Activity) = userRepository.getCurrentSMS(activity)
 
 }

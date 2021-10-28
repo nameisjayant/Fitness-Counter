@@ -15,14 +15,24 @@ import com.example.fitnesscounter.databinding.FragmentLoginBinding
 import com.example.fitnesscounter.ui.viewmodels.UserViewModel
 import com.example.fitnesscounter.utils.ApiStates
 import com.example.fitnesscounter.utils.Constants
+import com.example.fitnesscounter.utils.LoadingDialog
 import com.example.fitnesscounter.utils.showMsg
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
     private lateinit var binding: FragmentLoginBinding
     private val viewModel: UserViewModel by viewModels()
+
+    @Inject
+    lateinit var loadingDialog: LoadingDialog
+
+    companion object {
+        var loginToken = ""
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,10 +51,17 @@ class LoginFragment : Fragment() {
     }
 
     private fun login() {
+
+        if (!loadingDialog.isShowing())
+            loadingDialog.create(requireContext())
+
         binding.apply {
             lifecycleScope.launchWhenStarted {
                 if (!TextUtils.isEmpty(username.text) && !TextUtils.isEmpty(password.text)) {
-                    viewModel.login(username.text.toString(), password.text.toString()).collect {
+                    viewModel.login(
+                        username.text.toString().trim(),
+                        password.text.toString().trim()
+                    ).collect {
                         when (it) {
                             is ApiStates.Success -> {
                                 requireActivity().showMsg("login successfully!!")
@@ -52,17 +69,28 @@ class LoginFragment : Fragment() {
                                 viewModel.setPref(Constants.token, it.data.data.token)
                                 viewModel.setPref(Constants.email, it.data.data.email)
                                 viewModel.setPref(Constants.username, it.data.data.username)
+                                loginToken = it.data.data.token
+
+                                if (loadingDialog.isShowing())
+                                    loadingDialog.dismiss()
+                                view?.findNavController()
+                                    ?.navigate(R.id.action_loginFragment2_to_profileFragment2)
                             }
                             is ApiStates.Failure -> {
                                 Log.d("main", it.msg)
+                                if (loadingDialog.isShowing())
+                                    loadingDialog.dismiss()
+                                requireActivity().showMsg("wrong username and password")
                             }
                             ApiStates.Loading -> {
-                                requireActivity().showMsg("loading..")
+                                if (!loadingDialog.isShowing())
+                                    loadingDialog.create(requireContext())
                             }
                         }
                     }
                 } else {
                     requireActivity().showMsg("please fill all the fields")
+                    loadingDialog.dismiss()
                 }
             }
         }

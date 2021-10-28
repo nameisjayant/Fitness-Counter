@@ -8,9 +8,9 @@ import javax.inject.Inject
 
 class OAuthInterceptor @Inject constructor(
     @TokenType
-    val tokenType: String,
+    val tokenType: String?,
     @AccessToken
-    val accessToken: String
+    val accessToken: String?
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {

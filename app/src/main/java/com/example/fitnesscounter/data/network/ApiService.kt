@@ -26,4 +26,18 @@ interface ApiService {
         @Field("username") username: String,
         @Field("password") password: String
     ): Response<UserResponse>
+
+    @POST("profile")
+    @FormUrlEncoded
+    suspend fun createProfile(
+        @Field("id") id: String,
+        @Field("goal") goal: String,
+        @Field("active") active: String,
+        @Field("gender") gender: String,
+        @Field("dob") dob: String,
+        @Field("height") height: String,
+        @Field("weight") weight: String,
+        @Field("goalweight") goalWeight: String,
+        @Field("weeklygoal") weeklyGoal: String
+    ): Response<UserResponse>
 }

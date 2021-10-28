@@ -1,5 +1,6 @@
 package com.example.fitnesscounter.utils
 
+import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,7 +20,9 @@ fun <T> toResultFlow(call: suspend () -> Response<T>): Flow<ApiStates<T>> = flow
         } else {
             response.errorBody()?.let { error ->
                 error.close()
-                emit(ApiStates.Failure(error.toString()))
+
+                emit(ApiStates.Failure(error.string()))
+
             }
         }
     } catch (e: Exception) {

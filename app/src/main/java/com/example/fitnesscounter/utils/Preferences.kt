@@ -12,12 +12,13 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import java.lang.Exception
 import javax.inject.Inject
+import javax.inject.Singleton
 
 class Preferences @Inject constructor(@ApplicationContext private val context: Context) {
 
-
-    private val Context.datastore by preferencesDataStore("preferences")
-
+    companion object{
+        private val Context.datastore by preferencesDataStore("preferences")
+    }
 
     suspend fun setPref(key: Preferences.Key<String>, value: String) = context
         .datastore.edit { preference ->

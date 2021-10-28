@@ -1,5 +1,6 @@
 package com.example.fitnesscounter.ui.fragments
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -12,17 +13,24 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.findNavController
 import com.example.fitnesscounter.R
 import com.example.fitnesscounter.databinding.FragmentSignupBinding
+import com.example.fitnesscounter.databinding.ProgressDialogBinding
 import com.example.fitnesscounter.ui.viewmodels.UserViewModel
 import com.example.fitnesscounter.utils.ApiStates
 import com.example.fitnesscounter.utils.Constants
+import com.example.fitnesscounter.utils.LoadingDialog
 import com.example.fitnesscounter.utils.showMsg
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class SignupFragment : Fragment() {
     private lateinit var binding: FragmentSignupBinding
     private val viewModel: UserViewModel by viewModels()
+
+    @Inject
+    lateinit var loadingDialog: LoadingDialog
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -36,11 +44,17 @@ class SignupFragment : Fragment() {
 
         binding.signup.setOnClickListener {
             createUser()
+
         }
+
         return binding.root
     }
 
+
     private fun createUser() {
+        if (!loadingDialog.isShowing())
+            loadingDialog.create(requireContext())
+
         binding.apply {
             lifecycleScope.launchWhenStarted {
                 if (!TextUtils.isEmpty(username.text) && !TextUtils.isEmpty(email.text) && !TextUtils.isEmpty(
@@ -48,9 +62,9 @@ class SignupFragment : Fragment() {
                     )
                 ) {
                     viewModel.createUser(
-                        username.text.toString(),
-                        email.text.toString(),
-                        password.text.toString()
+                        username.text.toString().trim(),
+                        email.text.toString().trim(),
+                        password.text.toString().trim()
                     ).collect {
                         when (it) {
                             is ApiStates.Success -> {
@@ -59,22 +73,32 @@ class SignupFragment : Fragment() {
                                 viewModel.setPref(Constants.token, it.data.data.token)
                                 viewModel.setPref(Constants.email, it.data.data.email)
                                 viewModel.setPref(Constants.username, it.data.data.username)
-
+                                Constants.passToken = it.data.data.token
+                                if (loadingDialog.isShowing())
+                                    loadingDialog.dismiss()
+                                view?.findNavController()
+                                    ?.navigate(R.id.action_signupFragment2_to_profileFragment)
                             }
 
                             is ApiStates.Failure -> {
                                 Log.d("main", it.msg)
+                                requireActivity().showMsg("something went wrong, please try again!!")
+                                if (loadingDialog.isShowing())
+                                    loadingDialog.dismiss()
                             }
 
                             ApiStates.Loading -> {
-                                requireActivity().showMsg("loading..")
+                                if (!loadingDialog.isShowing())
+                                    loadingDialog.create(requireContext())
                             }
                         }
                     }
                 } else {
                     requireActivity().showMsg("please fill all the fields..")
+                    loadingDialog.dismiss()
                 }
             }
         }
     }
+
 }

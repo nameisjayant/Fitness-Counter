@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/login_nav_graph"
-    app:startDestination="@id/profileFragment">
+    app:startDestination="@id/signupFragment2">
     <fragment
         android:id="@+id/signupFragment2"
         android:name="com.example.fitnesscounter.ui.fragments.SignupFragment"
@@ -10,6 +10,9 @@
         <action
             android:id="@+id/action_signupFragment2_to_loginFragment2"
             app:destination="@id/loginFragment2" />
+        <action
+            android:id="@+id/action_signupFragment2_to_profileFragment"
+            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment2"
@@ -18,6 +21,9 @@
         <action
             android:id="@+id/action_loginFragment2_to_signupFragment2"
             app:destination="@id/signupFragment2" />
+        <action
+            android:id="@+id/action_loginFragment2_to_profileFragment2"
+            app:destination="@id/profileFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileFragment"

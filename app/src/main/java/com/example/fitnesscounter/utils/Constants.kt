@@ -12,5 +12,6 @@ object Constants {
     val email: Preferences.Key<String> =
         stringPreferencesKey("email")
     val userId: Preferences.Key<String> = stringPreferencesKey("userId")
+    var passToken = ""
 
 }
